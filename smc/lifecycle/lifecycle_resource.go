@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/teris-io/shortid"
 )
 
 // NewLifecycleResource is a helper function to simplify the provider implementation.
@@ -28,6 +29,7 @@ func (r *lifecycleResource) Metadata(
 // lifecycleResourceModel maps the resource schema data.
 type lifecycleResourceModel struct {
 	Msg types.String `tfsdk:"msg"`
+	ID  types.String `tfsdk:"id"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -37,6 +39,13 @@ func (r *lifecycleResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Dia
 			"msg": {
 				Type:     types.StringType,
 				Required: true,
+			},
+			"id": {
+				Type:     types.StringType,
+				Computed: true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					resource.UseStateForUnknown(),
+				},
 			},
 		},
 	}, nil
@@ -55,6 +64,8 @@ func (r *lifecycleResource) Create(
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	plan.ID = types.StringValue(shortid.MustGenerate())
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
