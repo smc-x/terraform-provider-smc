@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/smc-x/terraform-provider-smc/cli"
+	"github.com/smc-x/terraform-provider-smc/smc/lifecycle"
+	lifecycleFrag "github.com/smc-x/terraform-provider-smc/smc/lifecycle_fragile"
 )
 
 // New is a helper function to simplify provider server and testing implementation.
@@ -73,5 +75,7 @@ func (p *smcProvider) DataSources(_ context.Context) []func() datasource.DataSou
 func (p *smcProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewImageResource,
+		lifecycle.NewLifecycleResource,
+		lifecycleFrag.NewLifecycleFragileResource,
 	}
 }
