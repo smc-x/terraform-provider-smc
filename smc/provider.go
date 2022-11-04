@@ -12,7 +12,7 @@ import (
 
 	"github.com/smc-x/terraform-provider-smc/cli"
 	"github.com/smc-x/terraform-provider-smc/smc/lifecycle"
-	lifecycleFrag "github.com/smc-x/terraform-provider-smc/smc/lifecycle_fragile"
+	"github.com/smc-x/terraform-provider-smc/smc/overleaf"
 )
 
 // New is a helper function to simplify provider server and testing implementation.
@@ -73,9 +73,7 @@ func (p *smcProvider) DataSources(_ context.Context) []func() datasource.DataSou
 
 // Resources defines the resources implemented in the provider.
 func (p *smcProvider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{
-		NewImageResource,
-		lifecycle.NewLifecycleResource,
-		lifecycleFrag.NewLifecycleFragileResource,
-	}
+	resources := lifecycle.Resources()
+	resources = append(resources, overleaf.Resources()...)
+	return resources
 }

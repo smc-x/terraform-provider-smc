@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/teris-io/shortid"
+
+	lifecycleFrag "github.com/smc-x/terraform-provider-smc/smc/lifecycle_fragile"
 )
 
 // NewLifecycleResource is a helper function to simplify the provider implementation.
@@ -134,4 +136,11 @@ func (r *lifecycleResource) Delete(
 	}
 
 	// The state will be erased automatically
+}
+
+func Resources() []func() resource.Resource {
+	return []func() resource.Resource{
+		NewLifecycleResource,
+		lifecycleFrag.NewLifecycleFragileResource,
+	}
 }
