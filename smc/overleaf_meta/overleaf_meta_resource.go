@@ -3,6 +3,7 @@ package meta
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -71,9 +72,10 @@ func (r *overleafMetaResource) Create(
 		return
 	}
 
-	plan.ID = types.StringValue(shortid.MustGenerate())
+	id := strings.ToLower(shortid.MustGenerate())
+	plan.ID = types.StringValue(id)
 	plan.Image = types.StringValue(
-		fmt.Sprintf("sharelatex-%s:%s", plan.Owner, shortid.MustGenerate()),
+		fmt.Sprintf("sharelatex-%s:%s", plan.Owner, id),
 	)
 
 	// Set state to fully populated data
