@@ -2,15 +2,11 @@
 package genid
 
 import (
-	"time"
+	"strings"
 
 	"github.com/teris-io/shortid"
 )
 
-var (
-	sid = shortid.MustNew(0, "0123456789abcdefghijklmnopqrstuvwxyz", uint64(time.Now().Unix()))
-)
-
 func Short() string {
-	return sid.MustGenerate()
+	return strings.ToLower(shortid.MustGenerate())
 }
