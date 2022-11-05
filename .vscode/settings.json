@@ -1,9 +1,12 @@
 {
     "cSpell.words": [
         "datasource",
+        "genid",
+        "nats",
         "providerserver",
         "sharelatex",
         "shortid",
+        "sirupsen",
         "teris",
         "tflog",
         "tfsdk"
