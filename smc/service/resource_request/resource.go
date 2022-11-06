@@ -171,8 +171,10 @@ func (r *request) Read(
 		timeout = time.Second
 	}
 
+	data := state.Data.ValueString()
+
 	// Invoke the remote method
-	reply, err := r.client.Remote(subj+PatternRead+id, nil, timeout)
+	reply, err := r.client.Remote(subj+PatternRead+id, []byte(data), timeout)
 	logging.PanicIf(
 		"invoke remote read method",
 		err,
@@ -261,8 +263,10 @@ func (r *request) Delete(
 		timeout = time.Second
 	}
 
+	data := state.Data.ValueString()
+
 	// Invoke the remote method
-	reply, err := r.client.Remote(subj+PatternDelete+id, nil, timeout)
+	reply, err := r.client.Remote(subj+PatternDelete+id, []byte(data), timeout)
 	logging.PanicIf(
 		"invoke remote delete method",
 		err,
