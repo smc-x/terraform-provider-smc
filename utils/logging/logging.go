@@ -11,7 +11,7 @@ var (
 	ErrDiags = errors.New("diags has error")
 )
 
-func WarnIf(verb string, err error, body diag.Diagnostics) {
+func WarnIf(verb string, err error, body *diag.Diagnostics) {
 	if err != nil {
 		body.Append(diag.NewWarningDiagnostic(
 			"failed to "+verb,
@@ -20,7 +20,7 @@ func WarnIf(verb string, err error, body diag.Diagnostics) {
 	}
 }
 
-func PanicIf(verb string, err error, body diag.Diagnostics) {
+func PanicIf(verb string, err error, body *diag.Diagnostics) {
 	if err != nil {
 		body.Append(diag.NewErrorDiagnostic(
 			"failed to "+verb,
@@ -30,7 +30,7 @@ func PanicIf(verb string, err error, body diag.Diagnostics) {
 	}
 }
 
-func PanicIfDiags(err, body diag.Diagnostics) {
+func PanicIfDiags(err diag.Diagnostics, body *diag.Diagnostics) {
 	body.Append(err...)
 	if body.HasError() {
 		panic(ErrDiags)
@@ -38,7 +38,9 @@ func PanicIfDiags(err, body diag.Diagnostics) {
 }
 
 func RecoverDiags() {
-	if e := recover(); e != nil && e != ErrDiags {
-		panic(e)
+	if e := recover(); e != nil {
+		if err, ok := e.(error); ok && err != ErrDiags {
+			panic(err)
+		}
 	}
 }

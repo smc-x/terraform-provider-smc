@@ -25,18 +25,26 @@ type Wrapper struct {
 
 // New initiates a wrapper.
 func New(token, endpoint string, skipVerify bool) (*Wrapper, func(), error) {
+	drained := make(chan bool, 1)
 	nc, err := nats.Connect(
 		fmt.Sprintf("tls://%s@%s", token, endpoint),
 		nats.Secure(&tls.Config{
 			InsecureSkipVerify: skipVerify,
+		}),
+		nats.ClosedHandler(func(*nats.Conn) {
+			drained <- true
 		}),
 	)
 	if err != nil {
 		return nil, func() {}, err
 	}
 	return &Wrapper{nc}, func() {
-		logIf(nc.Drain())
-		nc.Close()
+		err := nc.Drain()
+		if err == nil {
+			<-drained
+		} else {
+			logIf(err)
+		}
 	}, nil
 }
 

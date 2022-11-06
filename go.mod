@@ -6,6 +6,7 @@ require (
 	github.com/hashicorp/terraform-plugin-framework v0.15.0
 	github.com/nats-io/nats.go v1.19.0
 	github.com/sirupsen/logrus v1.9.0
+	github.com/spf13/pflag v1.0.5
 	github.com/teris-io/shortid v0.0.0-20220617161101-71ec9f2aa569
 	github.com/terraform-community-providers/terraform-plugin-framework-utils v0.1.3
 )

@@ -61,13 +61,13 @@ func (r *normal) Create(
 	// Retrieve values from plan
 	var plan model
 	diags := req.Plan.Get(ctx, &plan)
-	logging.PanicIfDiags(diags, resp.Diagnostics)
+	logging.PanicIfDiags(diags, &resp.Diagnostics)
 
 	plan.ID = types.StringValue(genid.Short())
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
-	logging.PanicIfDiags(diags, resp.Diagnostics)
+	logging.PanicIfDiags(diags, &resp.Diagnostics)
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -79,11 +79,11 @@ func (r *normal) Read(
 	// Get current state
 	var state model
 	diags := req.State.Get(ctx, &state)
-	logging.PanicIfDiags(diags, resp.Diagnostics)
+	logging.PanicIfDiags(diags, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
-	logging.PanicIfDiags(diags, resp.Diagnostics)
+	logging.PanicIfDiags(diags, &resp.Diagnostics)
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
@@ -95,11 +95,11 @@ func (r *normal) Update(
 	// Retrieve values from plan
 	var plan model
 	diags := req.Plan.Get(ctx, &plan)
-	logging.PanicIfDiags(diags, resp.Diagnostics)
+	logging.PanicIfDiags(diags, &resp.Diagnostics)
 
 	// Set updated state
 	diags = resp.State.Set(ctx, plan)
-	logging.PanicIfDiags(diags, resp.Diagnostics)
+	logging.PanicIfDiags(diags, &resp.Diagnostics)
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
@@ -111,7 +111,7 @@ func (r *normal) Delete(
 	// Retrieve values from state
 	var state model
 	diags := req.State.Get(ctx, &state)
-	logging.PanicIfDiags(diags, resp.Diagnostics)
+	logging.PanicIfDiags(diags, &resp.Diagnostics)
 
 	// The state will be erased automatically
 }

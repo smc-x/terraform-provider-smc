@@ -15,6 +15,7 @@ import (
 
 	"github.com/smc-x/terraform-provider-smc/smc/global"
 	"github.com/smc-x/terraform-provider-smc/smc/lifecycle"
+	"github.com/smc-x/terraform-provider-smc/smc/service"
 	"github.com/smc-x/terraform-provider-smc/utils/logging"
 	"github.com/smc-x/terraform-provider-smc/utils/nats"
 )
@@ -76,7 +77,7 @@ func (p *smcProvider) Configure(
 	// Retrieve and validate provider data from configuration and environment variables
 	var config model
 	diags := req.Config.Get(ctx, &config)
-	logging.PanicIfDiags(diags, resp.Diagnostics)
+	logging.PanicIfDiags(diags, &resp.Diagnostics)
 
 	// If any of the expected configurations are missing, return
 	// errors with provider-specific guidance.
@@ -94,12 +95,12 @@ func (p *smcProvider) Configure(
 			}
 			return nil
 		}(),
-		resp.Diagnostics,
+		&resp.Diagnostics,
 	)
 
 	// Create a new client using the configuration values
 	client, cleanClient, err := nats.New(token, endpoint, skipVerify)
-	logging.PanicIf("create a new client", err, resp.Diagnostics)
+	logging.PanicIf("create a new client", err, &resp.Diagnostics)
 	global.Defer(cleanClient)
 
 	// Make the smc client available during DataSource and Resource
@@ -116,5 +117,6 @@ func (p *smcProvider) DataSources(_ context.Context) []func() datasource.DataSou
 // Resources defines the resources implemented in the provider.
 func (p *smcProvider) Resources(_ context.Context) []func() resource.Resource {
 	resources := lifecycle.Resources()
+	resources = append(resources, service.Resources()...)
 	return resources
 }
