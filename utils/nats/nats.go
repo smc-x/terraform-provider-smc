@@ -43,7 +43,7 @@ func New(token, endpoint string, skipVerify bool) (*Wrapper, func(), error) {
 		if err == nil {
 			<-drained
 		} else {
-			logIf(err)
+			logger.Error(err)
 		}
 	}, nil
 }

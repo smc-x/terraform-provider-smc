@@ -14,7 +14,6 @@ import (
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
 
 	"github.com/smc-x/terraform-provider-smc/smc/global"
-	"github.com/smc-x/terraform-provider-smc/smc/lifecycle"
 	"github.com/smc-x/terraform-provider-smc/smc/service"
 	"github.com/smc-x/terraform-provider-smc/utils/logging"
 	"github.com/smc-x/terraform-provider-smc/utils/nats"
@@ -116,7 +115,6 @@ func (p *smcProvider) DataSources(_ context.Context) []func() datasource.DataSou
 
 // Resources defines the resources implemented in the provider.
 func (p *smcProvider) Resources(_ context.Context) []func() resource.Resource {
-	resources := lifecycle.Resources()
-	resources = append(resources, service.Resources()...)
+	resources := service.Resources()
 	return resources
 }
