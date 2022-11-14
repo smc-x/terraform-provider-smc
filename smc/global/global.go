@@ -1,3 +1,4 @@
+// Package global maintains a global defer list.
 package global
 
 import "sync"

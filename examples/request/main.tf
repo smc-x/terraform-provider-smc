@@ -16,7 +16,7 @@ provider "smc" {
   skip_verify = var.skip_verify
 }
 
-resource "smc_service_request" "step1" {
+resource "smc_request" "step1" {
   # id = {computed}
 
   subj    = "workers"
@@ -26,10 +26,10 @@ resource "smc_service_request" "step1" {
 }
 
 locals {
-  worker = jsondecode(smc_service_request.step1.resp).worker
+  worker = jsondecode(smc_request.step1.resp).worker
 }
 
-resource "smc_service_request" "step2" {
+resource "smc_request" "step2" {
   # id = {computed}
 
   subj = local.worker

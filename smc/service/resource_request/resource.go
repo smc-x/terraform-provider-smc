@@ -35,7 +35,7 @@ type request struct {
 func (r *request) Metadata(
 	_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse,
 ) {
-	resp.TypeName = req.ProviderTypeName + "_service_request"
+	resp.TypeName = req.ProviderTypeName + "_request"
 }
 
 // model maps the resource schema data.
@@ -64,6 +64,9 @@ func (r *request) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) 
 			"subj": {
 				Type:     types.StringType,
 				Required: true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					resource.RequiresReplace(),
+				},
 			},
 
 			"timeout": {
@@ -151,95 +154,15 @@ func (r *request) Create(
 }
 
 // Read refreshes the Terraform state with the latest data.
-func (r *request) Read(
-	ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse,
-) {
-	defer logging.RecoverDiags()
-
-	// Get current state
-	var state model
-	diags := req.State.Get(ctx, &state)
-	logging.PanicIfDiags(diags, &resp.Diagnostics)
-
-	id := state.ID.ValueString()
-
-	subj := state.Subj.ValueString()
-	panicIfEmpty(subj, &resp.Diagnostics)
-
-	timeout := time.Duration(state.Time.ValueFloat64()) * time.Second
-	if timeout < time.Second {
-		timeout = time.Second
-	}
-
-	data := state.Data.ValueString()
-
-	// Invoke the remote method
-	reply, err := r.client.Remote(subj+PatternRead+id, []byte(data), timeout)
-	logging.PanicIf(
-		"invoke remote read method",
-		err,
-		&resp.Diagnostics,
-	)
-	if len(reply) == 0 || string(reply[0:1]) != "{" {
-		logging.PanicIf(
-			"finish the remote read method",
-			errors.New(string(reply)),
-			&resp.Diagnostics,
-		)
-	}
-
-	// Fulfill the model
-	state.Resp = types.StringValue(string(reply))
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	logging.PanicIfDiags(diags, &resp.Diagnostics)
+func (r *request) Read(context.Context, resource.ReadRequest, *resource.ReadResponse) {
+	// External changes are assumed non-observable
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *request) Update(
-	ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse,
-) {
-	defer logging.RecoverDiags()
-
-	// Retrieve values from plan
-	var plan model
-	diags := req.Plan.Get(ctx, &plan)
-	logging.PanicIfDiags(diags, &resp.Diagnostics)
-
-	id := plan.ID.ValueString()
-
-	subj := plan.Subj.ValueString()
-	panicIfEmpty(subj, &resp.Diagnostics)
-
-	timeout := time.Duration(plan.Time.ValueFloat64()) * time.Second
-	if timeout < time.Second {
-		timeout = time.Second
-	}
-
-	data := plan.Data.ValueString()
-
-	// Invoke the remote method
-	reply, err := r.client.Remote(subj+PatternUpdate+id, []byte(data), timeout)
-	logging.PanicIf(
-		"invoke remote update method",
-		err,
-		&resp.Diagnostics,
-	)
-	if len(reply) == 0 || string(reply[0:1]) != "{" {
-		logging.PanicIf(
-			"finish the remote update method",
-			errors.New(string(reply)),
-			&resp.Diagnostics,
-		)
-	}
-
-	// Fulfill the model
-	plan.Resp = types.StringValue(string(reply))
-
-	// Set updated state
-	diags = resp.State.Set(ctx, plan)
-	logging.PanicIfDiags(diags, &resp.Diagnostics)
+func (r *request) Update(context.Context, resource.UpdateRequest, *resource.UpdateResponse) {
+	panic("Update is prohibited. " +
+		"The error suggests that there is something wrong with the template. " +
+		"Please help report to the maintainers.")
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
@@ -298,7 +221,5 @@ func panicIfEmpty(subj string, body *diag.Diagnostics) {
 
 const (
 	PatternCreate = ".create_"
-	PatternRead   = ".readxx_"
-	PatternUpdate = ".update_"
 	PatternDelete = ".delete_"
 )
