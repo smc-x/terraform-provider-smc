@@ -2,6 +2,7 @@ package request
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -186,10 +187,13 @@ func (r *request) Delete(
 		timeout = time.Second
 	}
 
-	data := state.Data.ValueString()
+	data, _ := json.Marshal(map[string]string{
+		"data": state.Data.ValueString(),
+		"resp": state.Resp.ValueString(),
+	})
 
 	// Invoke the remote method
-	reply, err := r.client.Remote(subj+PatternDelete+id, []byte(data), timeout)
+	reply, err := r.client.Remote(subj+PatternDelete+id, data, timeout)
 	logging.PanicIf(
 		"invoke remote delete method",
 		err,

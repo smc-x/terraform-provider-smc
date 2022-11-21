@@ -30,15 +30,23 @@ func main() {
 	}
 	defer cleanMid()
 
-	mid.Serve("workers.*", func(subj string, data []byte) (reply []byte) {
+	cleanW, err := mid.Serve("workers.*", func(subj string, data []byte) (reply []byte) {
 		logrus.Infof("%s: %s", subj, data)
 		return []byte("{\"worker\":\"worker.default\"}")
 	})
+	if err != nil {
+		panic(err)
+	}
+	defer cleanW()
 
-	mid.Serve("worker.default.*", func(subj string, data []byte) (reply []byte) {
+	cleanD, err := mid.Serve("worker.default.*", func(subj string, data []byte) (reply []byte) {
 		logrus.Infof("%s: %s", subj, data)
 		return []byte(fmt.Sprintf("{\"msg\":\"Hello, %s\"}", subj[22:]))
 	})
+	if err != nil {
+		panic(err)
+	}
+	defer cleanD()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT)
